@@ -1,0 +1,173 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background-color: #FAF5FF; /* Zipo binafsha foni */
+  box-sizing: border-box;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-logo {
+  font-size: 32px;
+  font-weight: 900;
+  color: #7C3AED;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+  font-size: 13px;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+.login-card {
+  background-color: #FFFFFF;
+  border-radius: 24px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #EDE9FE;
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.08);
+}
+
+.info-text {
+  font-size: 14px;
+  color: #4B5563;
+  line-height: 1.5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.primary-btn {
+  width: 100%;
+  background-color: #F97316; /* Zipo CTA to'q sariq rangi */
+  color: #FFFFFF;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 13px 0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.primary-btn:active {
+  background-color: #EA580C;
+  transform: scale(0.98);
+}
+
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-alert {
+  background-color: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  color: #EF4444;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* Sessiya ko'rsatish */
+.input-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 6px;
+}
+
+.session-code-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #FAF5FF;
+  border: 1.5px dashed #C4B5FD;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.code-badge {
+  font-size: 18px;
+  font-weight: 800;
+  color: #7C3AED;
+  letter-spacing: 1px;
+}
+
+.copy-btn {
+  background-color: #7C3AED;
+  color: #FFFFFF;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.instructions {
+  font-size: 13px;
+  color: #374151;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.bot-link {
+  color: #7C3AED;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  background: #EDE9FE;
+  padding: 6px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.code-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 20px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 8px;
+  border: 2px solid #E5E7EB;
+  border-radius: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.code-input:focus {
+  border-color: #7C3AED;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #6B7280;
+  font-size: 13px;
+  margin-top: 14px;
+  width: 100%;
+  cursor: pointer;
+  text-decoration: underline;
+}

@@ -1,0 +1,247 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: #FAF5FF;
+  padding: 16px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding-bottom: 90px;
+}
+
+.profile-header-title {
+  margin-bottom: 16px;
+}
+
+.profile-header-title h2 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1F2937;
+  margin: 0;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-card {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid #EDE9FE;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.03);
+}
+
+/* Asosiy avatar va ism bloki */
+.profile-main-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin-bottom: 12px;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #7C3AED;
+  background-color: #FAF5FF;
+}
+
+.avatar-edit-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #7C3AED;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.profile-view-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.profile-display-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1F2937;
+  margin: 0 0 4px 0;
+}
+
+.profile-tg-id {
+  font-size: 12px;
+  color: #7C3AED;
+  background: #EDE9FE;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.edit-profile-btn {
+  background: #FAF5FF;
+  color: #7C3AED;
+  border: 1.5px solid #EDE9FE;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-profile-btn:active {
+  background: #EDE9FE;
+}
+
+.avatar-hint {
+  font-size: 11px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.profile-success-alert {
+  background: #ECFDF5;
+  color: #059669;
+  border: 1px solid #A7F3D0;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Tahrirlash formasi */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-sub-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1F2937;
+  margin: 0 0 4px 0;
+}
+
+.profile-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-form .form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4B5563;
+}
+
+.profile-form .form-group input {
+  width: 100%;
+  background-color: #FAF5FF;
+  border: 1.5px solid #EDE9FE;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #1F2937;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.profile-form .form-group input:focus {
+  border-color: #7C3AED;
+  background-color: #FFFFFF;
+}
+
+.profile-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: #F3F4F6;
+  color: #4B5563;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.save-btn {
+  flex: 1;
+  background: #7C3AED;
+  color: #FFFFFF;
+  border: none;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Menyu qismi */
+.profile-menu-card {
+  padding: 6px 14px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #FAF5FF;
+  cursor: pointer;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 18px;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.menu-arrow {
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
+.menu-item.logout-item .menu-text,
+.menu-item.logout-item .menu-arrow {
+  color: #EF4444;
+}

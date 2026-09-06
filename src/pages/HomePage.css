@@ -1,10 +1,166 @@
 .HomePage {
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
+  background-color: #F8FAFC;
 }
 
+/* ==========================================================
+   TO'LIQ EKRANLI UZUM STORIES REKLAMASI
+   ========================================================== */
+.uzum-story-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  background-color: #E2DBD4;
+  animation: storyFadeIn 0.25s ease-out;
+}
+
+/* Fon rasmi (To'liq ekranni qoplaydi) */
+.uzum-story-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 1;
+}
+
+/* Yengil gradient (matnlar yaxshi o'qilishi uchun) */
+.uzum-story-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Yuqori qator: Story progress bar va yupqa 'X' */
+.uzum-story-topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 0 20px;
+}
+
+.uzum-story-bar-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.uzum-story-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 4px;
+}
+
+.uzum-story-close {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  font-size: 26px;
+  font-weight: 200;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 10px 4px 4px 4px;
+  line-height: 1;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease;
+}
+
+.uzum-story-close:active {
+  transform: scale(0.85);
+}
+
+/* Matnlar qismi */
+.uzum-story-content {
+  position: relative;
+  z-index: 10;
+  padding: 8px 24px 0 24px;
+  margin-top: 4px;
+}
+
+.uzum-story-headline {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.1;
+  color: #111827;
+  letter-spacing: -0.8px;
+  margin: 0 0 10px 0;
+  max-width: 95%;
+}
+
+.uzum-story-subline {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #1f2937;
+  margin: 0;
+  max-width: 85%;
+}
+
+/* Pastki Tugma */
+.uzum-story-bottom {
+  position: relative;
+  z-index: 10;
+  padding: 0 20px 38px 20px;
+}
+
+.uzum-story-btn {
+  width: 100%;
+  height: 52px;
+  background-color: #ffffff;
+  color: #111827;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transition: transform 0.15s ease, background-color 0.15s;
+}
+
+.uzum-story-btn:active {
+  transform: scale(0.97);
+  background-color: #f4f4f5;
+}
+
+@keyframes storyFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================
+   ASOSIY HOME KONTENTI
+   ========================================================== */
 .home-content {
   display: flex;
   flex-direction: column;
@@ -12,35 +168,35 @@
   flex: 1;
   justify-content: flex-start;
   align-items: stretch;
-  background-color: #FAF5FF;
+  background: linear-gradient(180deg, #F5F3FF 0%, #FAF5FF 120px, #F8FAFC 300px);
   overflow-y: auto;
-  padding-bottom: 75px;
+  padding-bottom: 85px;
 }
 
 .home-content::-webkit-scrollbar {
   display: none;
 }
 
-/* --- Reklama Slayderi --- */
+/* Reklama Slayderi */
 .ad-slider-wrapper {
   width: 100%;
-  padding: 12px 16px;
+  padding: 14px 16px 12px 16px;
   box-sizing: border-box;
 }
 
 .ad-slider {
   position: relative;
   width: 100%;
-  height: 145px;
-  border-radius: 18px;
+  height: 155px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.12);
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.22);
 }
 
 .ad-track {
   display: flex;
   height: 100%;
-  transition: transform 0.45s ease-in-out;
+  transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .ad-slide {
@@ -49,7 +205,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 18px 20px;
   box-sizing: border-box;
   color: #ffffff;
 }
@@ -57,8 +213,8 @@
 .ad-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-width: 60%;
+  gap: 6px;
+  max-width: 62%;
   z-index: 2;
 }
 
@@ -66,31 +222,32 @@
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(4px);
+  letter-spacing: 0.6px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
   display: inline-block;
   width: fit-content;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 3px 8px;
+  border-radius: 8px;
 }
 
 .ad-title {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .ad-desc {
   margin: 0;
-  font-size: 11px;
-  opacity: 0.9;
+  font-size: 12px;
+  opacity: 0.92;
+  line-height: 1.3;
 }
 
 .ad-image-box {
-  width: 90px;
-  height: 90px;
+  width: 95px;
+  height: 95px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,36 +258,82 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
   transform: rotate(-3deg);
 }
 
 .ad-indicators {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 5px;
+  gap: 6px;
   z-index: 3;
 }
 
 .indicator {
-  width: 16px;
-  height: 3px;
+  width: 14px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.4);
-  border-radius: 2px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .indicator.active {
   background: #ffffff;
-  width: 24px;
+  width: 26px;
 }
 
-/* --- Mahsulotlar Ro'yxati --- */
+/* Servis Afzalliklari (Perks) */
+.perks-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 16px 14px 16px;
+  box-sizing: border-box;
+}
+
+.perk-box {
+  background: #ffffff;
+  border: 1px solid #ede9fe;
+  border-radius: 16px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.04);
+  min-height: 82px;
+  box-sizing: border-box;
+}
+
+.perk-icon-circle {
+  font-size: 18px;
+  color: #7c3aed;
+}
+
+.perk-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  display: block;
+  white-space: nowrap;
+}
+
+.perk-sub {
+  font-size: 9px;
+  font-weight: 500;
+  color: #64748b;
+  display: block;
+  white-space: nowrap;
+}
+
+/* Mahsulotlar Ro'yxati */
 .products-section {
   padding: 6px 16px 20px 16px;
 }
@@ -139,23 +342,34 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.title-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .section-heading {
-  font-size: 16px;
+  font-size: 16.5px;
   font-weight: 800;
-  color: #1f2937;
+  color: #0f172a;
   margin: 0;
 }
 
+.section-subtext {
+  font-size: 11.5px;
+  color: #64748b;
+}
+
 .products-badge {
-  font-size: 11px;
+  font-size: 11.5px;
   color: #7c3aed;
   background-color: #ede9fe;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 700;
 }
 
 .products-grid {
@@ -167,32 +381,61 @@
 .product-card {
   position: relative;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 18px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border: 1px solid #f3e8ff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   box-sizing: border-box;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.product-card:active {
+  transform: scale(0.985);
 }
 
 .product-card.in-cart {
   border-color: #7c3aed;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
 }
 
-/* Kartochka burchagidagi savat indikatori */
+/* Chegirma Foizi Nishoni */
+.product-discount-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #FFFFFF;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 7px;
+  border-radius: 8px;
+  z-index: 3;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+}
+
+/* Savatdagi soni nishoni */
 .cart-item-badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   background-color: #7c3aed;
   color: #ffffff;
   font-size: 10px;
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 8px;
+  padding: 3px 8px;
+  border-radius: 10px;
   z-index: 3;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cart-item-badge i {
+  font-size: 9px;
 }
 
 .product-clickable-area {
@@ -205,8 +448,8 @@
 .product-img-box {
   width: 100%;
   aspect-ratio: 1 / 1;
-  background-color: #faf5ff;
-  border-radius: 12px;
+  background-color: #f8fafc;
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -217,34 +460,74 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.04);
 }
 
 .product-details {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
 }
 
 .product-name {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #374151;
+  color: #334155;
   margin: 0;
-  line-height: 16px;
-  height: 32px;
+  line-height: 17px;
+  height: 34px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.product-price {
-  font-size: 14px;
-  font-weight: 800;
-  color: #f97316;
-  margin: 6px 0 8px 0;
+/* Narx va chegirma qatori */
+.product-price-row {
+  margin: 6px 0 10px 0;
 }
 
+.product-old-price {
+  font-size: 11px;
+  color: #94A3B8;
+  text-decoration: line-through;
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+
+.product-price-flex {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.product-price {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #ea580c;
+}
+
+.product-price small {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.stock-warning {
+  font-size: 9px;
+  font-weight: 700;
+  color: #DC2626;
+  background-color: #FEE2E2;
+  padding: 2px 5px;
+  border-radius: 6px;
+}
+
+/* Savatga qo'shish tugmalari */
 .product-card-action {
   width: 100%;
   margin-top: auto;
@@ -252,32 +535,45 @@
 
 .add-cart-btn {
   width: 100%;
-  background-color: #7c3aed;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
   color: #ffffff;
   border: none;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 8px 0;
-  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 9px 0;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: opacity 0.2s, transform 0.1s;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.25);
 }
 
 .add-cart-btn:active {
-  background-color: #6d28d9;
+  opacity: 0.9;
+  transform: scale(0.97);
 }
 
-/* BIR QATORDA (- 6 +) TURUVCHI BLOK */
+.disabled-btn {
+  background: #E2E8F0 !important;
+  color: #94A3B8 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+/* Savat hisoblagich bloki */
 .product-qty-box {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: space-between !important;
-  background-color: #FAF5FF;
-  border: 1.5px solid #7C3AED;
-  border-radius: 10px;
-  height: 34px;
-  padding: 0 4px;
+  background-color: #faf5ff;
+  border: 1.5px solid #7c3aed;
+  border-radius: 12px;
+  height: 36px;
+  padding: 0 6px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -285,16 +581,15 @@
 .qty-btn {
   background: none;
   border: none;
-  color: #7C3AED;
-  font-size: 18px;
+  color: #7c3aed;
+  font-size: 13px;
   font-weight: 800;
-  width: 28px;
+  width: 30px;
   height: 100%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
 }
 
 .qty-btn:active {
@@ -302,15 +597,77 @@
 }
 
 .qty-value {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1F2937;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1e1b4b;
 }
 
-.loading-state,
+/* Skeleton Loading Holati */
+.product-skeleton-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid #f1f5f9;
+}
+
+.skeleton-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line {
+  height: 13px;
+  border-radius: 6px;
+  background: #f1f5f9;
+}
+
+.skeleton-line.full { width: 85%; }
+.skeleton-line.short { width: 50%; }
+
+.skeleton-btn {
+  height: 36px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  margin-top: auto;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Bo'sh holat */
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
   text-align: center;
-  color: #9ca3af;
-  font-size: 13px;
-  padding: 30px 0;
+}
+
+.empty-icon-wrap {
+  font-size: 36px;
+  color: #a78bfa;
+  margin-bottom: 10px;
+}
+
+.empty-state h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.empty-state p {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
 }

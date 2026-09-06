@@ -9,6 +9,10 @@
   padding-bottom: 30px;
 }
 
+.checkout-page::-webkit-scrollbar {
+  display: none;
+}
+
 .detail-header {
   display: flex;
   align-items: center;
@@ -19,6 +23,21 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #1F2937;
+  cursor: pointer;
+}
+
+.header-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1F2937;
 }
 
 .checkout-content {
@@ -107,7 +126,8 @@
 }
 
 .type-icon {
-  font-size: 24px;
+  font-size: 20px;
+  color: #7C3AED;
   margin-bottom: 4px;
 }
 
@@ -130,64 +150,6 @@
   line-height: 1.2;
 }
 
-/* Filiallar ro'yxati */
-.pickup-fields {
-  margin-top: 14px;
-}
-
-.field-subtitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6B7280;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.pickup-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.pickup-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: #FAF5FF;
-  border: 1.5px solid #EDE9FE;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.pickup-item.selected {
-  border-color: #7C3AED;
-  background: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
-}
-
-.pickup-item input[type='radio'] {
-  accent-color: #7C3AED;
-  width: 16px;
-  height: 16px;
-}
-
-.pickup-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.pickup-info strong {
-  font-size: 12px;
-  color: #1F2937;
-}
-
-.pickup-info span {
-  font-size: 11px;
-  color: #6B7280;
-}
-
 .map-header-row {
   display: flex;
   justify-content: space-between;
@@ -203,11 +165,14 @@
   padding: 4px 10px;
   border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .leaflet-map-wrapper {
   width: 100%;
-  height: 210px;
+  height: 220px;
   border-radius: 14px;
   overflow: hidden;
   border: 1.5px solid #EDE9FE;
@@ -219,6 +184,65 @@
   height: 100%;
 }
 
+/* Faqat xaritadan tanlangan filial bloki */
+.selected-branch-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%);
+  border: 1.5px solid #DDD6FE;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.05);
+  animation: branchFade 0.2s ease-in-out;
+}
+
+.selected-branch-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #7C3AED;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.selected-branch-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-branch-label {
+  font-size: 10.5px;
+  color: #7C3AED;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.selected-branch-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1F2937;
+  margin-top: 1px;
+}
+
+.selected-branch-address {
+  font-size: 11.5px;
+  color: #6B7280;
+  margin: 2px 0 0 0;
+}
+
+@keyframes branchFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Promokod */
 .promo-input-wrapper {
   display: flex;
   gap: 8px;
@@ -232,7 +256,6 @@
   padding: 10px 12px;
   font-size: 13px;
   font-weight: 600;
-  text-transform: uppercase;
   outline: none;
 }
 
@@ -274,6 +297,7 @@
   color: #10B981;
 }
 
+/* To'lov usuli */
 .single-payment-box {
   display: flex;
   align-items: center;
@@ -285,7 +309,8 @@
 }
 
 .pay-badge {
-  font-size: 24px;
+  font-size: 20px;
+  color: #7C3AED;
 }
 
 .pay-text {
@@ -303,6 +328,7 @@
   color: #6B7280;
 }
 
+/* Hisob-kitob */
 .summary-line {
   display: flex;
   justify-content: space-between;
@@ -335,7 +361,7 @@
 
 .submit-order-btn {
   width: 100%;
-  background: #F97316;
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
   color: #FFFFFF;
   border: none;
   font-size: 15px;
@@ -344,10 +370,11 @@
   border-radius: 14px;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+  transition: transform 0.15s;
 }
 
 .submit-order-btn:active {
-  background-color: #EA580C;
+  transform: scale(0.98);
 }
 
 .submit-order-btn:disabled {
@@ -373,7 +400,8 @@
 }
 
 .success-icon {
-  font-size: 48px;
+  font-size: 42px;
+  color: #10B981;
   margin-bottom: 8px;
 }
 

@@ -23,24 +23,32 @@ function HomePage({ cart = [], onUpdateCart }) {
   const [loadingProducts, setLoadingProducts] = useState(true)
   const [loadingBanners, setLoadingBanners] = useState(true)
 
+  const [popupBanner, setPopupBanner] = useState(null)
+  const [showPopup, setShowPopup] = useState(false)
+
   const getItemQty = (productId) => {
     const found = cart.find((item) => item.id === productId)
     return found ? found.quantity : 0
   }
 
-  // 1. Reklamalarni Firestore'dan olish (faqat faollari va Firestore maydonlari bo'yicha)
+  // 1. Bannerlarni yuklash
   useEffect(() => {
     const fetchBanners = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'banners'))
         const items = querySnapshot.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((banner) => banner.isActive !== false) // Faol bannerlar
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((banner) => banner.isActive !== false)
 
-        setBanners(shuffleArray(items).slice(0, 5))
+        const shuffled = shuffleArray(items)
+        setBanners(shuffled.slice(0, 5))
+
+        const alreadySeen = sessionStorage.getItem('uzum_popup_shown')
+        if (!alreadySeen && shuffled.length > 0) {
+          setPopupBanner(shuffled[0])
+          setShowPopup(true)
+          sessionStorage.setItem('uzum_popup_shown', 'true')
+        }
       } catch (error) {
         console.error('Reklamalarni yuklashda xatolik:', error)
       } finally {
@@ -51,7 +59,7 @@ function HomePage({ cart = [], onUpdateCart }) {
     fetchBanners()
   }, [])
 
-  // 2. Mahsulotlarni Firestore'dan olish
+  // 2. Mahsulotlarni olish
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -60,7 +68,7 @@ function HomePage({ cart = [], onUpdateCart }) {
           id: doc.id,
           ...doc.data(),
         }))
-        setProducts(shuffleArray(items).slice(0, 20))
+        setProducts(shuffleArray(items))
       } catch (error) {
         console.error('Tovarlarni yuklashda xatolik:', error)
       } finally {
@@ -71,22 +79,78 @@ function HomePage({ cart = [], onUpdateCart }) {
     fetchProducts()
   }, [])
 
-  // Slayder aylanishi
   useEffect(() => {
     if (banners.length <= 1) return
-
     const timer = setInterval(() => {
       setActiveIdx((prev) => (prev === banners.length - 1 ? 0 : prev + 1))
-    }, 3500)
-
+    }, 3800)
     return () => clearInterval(timer)
   }, [banners])
+
+  const handleActionClick = () => {
+    setShowPopup(false)
+    if (popupBanner?.targetUrl) {
+      navigate(popupBanner.targetUrl)
+    } else if (popupBanner?.productId) {
+      navigate(`/product/${popupBanner.productId}`)
+    }
+  }
 
   return (
     <div className="HomePage">
       <Navbar />
+
+      {/* --- UZUM STORIES POPUP --- */}
+      {showPopup && popupBanner && (
+        <div className="uzum-story-fullscreen">
+          <img
+            src={
+              popupBanner.imageUrl ||
+              popupBanner.image ||
+              'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=900&auto=format&fit=crop'
+            }
+            alt={popupBanner.title || 'Mavsumiy reklama'}
+            className="uzum-story-bg-img"
+          />
+          <div className="uzum-story-gradient-overlay"></div>
+          <div className="uzum-story-topbar">
+            <div className="uzum-story-bar-track">
+              <div className="uzum-story-bar-fill"></div>
+            </div>
+            <button
+              type="button"
+              className="uzum-story-close"
+              onClick={() => setShowPopup(false)}
+              aria-label="Yopish"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="uzum-story-content">
+            <h1 className="uzum-story-headline">
+              {popupBanner.title || 'Yangi mavsum — yangi obrazlar'}
+            </h1>
+            <p className="uzum-story-subline">
+              {popupBanner.description || 'Kiyim, poyabzal va aksessuarlar hamyonbop narxlarda'}
+            </p>
+          </div>
+
+          <div className="uzum-story-bottom">
+            <button
+              type="button"
+              className="uzum-story-btn"
+              onClick={handleActionClick}
+            >
+              {popupBanner.buttonText || 'Xaridlarga'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* --- CONTENT --- */}
       <div className="home-content">
-        {/* Reklama Slayderi */}
+        {/* Banner Slayderi */}
         {!loadingBanners && banners.length > 0 && (
           <div className="ad-slider-wrapper">
             <div className="ad-slider">
@@ -95,7 +159,6 @@ function HomePage({ cart = [], onUpdateCart }) {
                 style={{ transform: `translateX(-${activeIdx * 100}%)` }}
               >
                 {banners.map((banner) => {
-                  // Firestore'dagi gradient / background maydonini olish
                   const bannerBg =
                     banner.gradient ||
                     banner.background ||
@@ -150,23 +213,66 @@ function HomePage({ cart = [], onUpdateCart }) {
           </div>
         )}
 
+        {/* Servis Afzalliklari */}
+        <div className="perks-strip">
+          <div className="perk-box">
+            <span className="perk-icon-circle">
+              <i className="fa-solid fa-truck-fast"></i>
+            </span>
+            <span className="perk-title">Tezkor yetkazish</span>
+            <span className="perk-sub">O‘zbekiston bo‘ylab</span>
+          </div>
+          <div className="perk-box">
+            <span className="perk-icon-circle">
+              <i className="fa-solid fa-shield-halved"></i>
+            </span>
+            <span className="perk-title">Xavfsiz xarid</span>
+            <span className="perk-sub">100% kafolatlangan</span>
+          </div>
+          <div className="perk-box">
+            <span className="perk-icon-circle">
+              <i className="fa-solid fa-credit-card"></i>
+            </span>
+            <span className="perk-title">Oson to‘lov</span>
+            <span className="perk-sub">Naqd yoki karta</span>
+          </div>
+        </div>
+
         {/* Mahsulotlar Ro'yxati */}
         <div className="products-section">
           <div className="section-title-wrap">
-            <h2 className="section-heading">Tavsiya etilgan tovarlar</h2>
-            <span className="products-badge">Tasodifiy tanlov</span>
+            <div className="title-left">
+              <h2 className="section-heading">Ommabop mahsulotlar</h2>
+              <span className="section-subtext">
+                Siz uchun saralangan maxsus takliflar
+              </span>
+            </div>
+            <span className="products-badge">{products.length} ta</span>
           </div>
 
           {loadingProducts ? (
-            <div className="loading-state">Tovarlar yuklanmoqda...</div>
+            <div className="products-grid">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="product-skeleton-card">
+                  <div className="skeleton-img"></div>
+                  <div className="skeleton-line full"></div>
+                  <div className="skeleton-line short"></div>
+                  <div className="skeleton-btn"></div>
+                </div>
+              ))}
+            </div>
           ) : products.length === 0 ? (
-            <div className="empty-state">Hozircha mahsulotlar mavjud emas</div>
+            <div className="empty-state">
+              <span className="empty-icon-wrap">
+                <i className="fa-solid fa-box-open"></i>
+              </span>
+              <h4>Mahsulotlar mavjud emas</h4>
+              <p>Tez orada yangi tovarlar qo‘shiladi</p>
+            </div>
           ) : (
             <div className="products-grid">
               {products.map((item) => {
                 const qty = getItemQty(item.id)
-
-                // Firestore'dagi images massividan birinchi rasmni olish
                 const displayImg =
                   Array.isArray(item.images) && item.images.length > 0
                     ? item.images[0]
@@ -174,17 +280,32 @@ function HomePage({ cart = [], onUpdateCart }) {
                       item.image ||
                       'https://via.placeholder.com/150'
 
+                // Chegirma hisob-kitoblari (Firestore ma'lumotlari bo'yicha)
+                const hasDiscount = Number(item.discount || 0) > 0 || Number(item.discountPrice || 0) > 0
+                const finalPrice = Number(item.discountPrice || item.price || 0)
+                const oldPrice = Number(item.price || 0)
+                const discountPercent = item.discount || (oldPrice > finalPrice ? Math.round(((oldPrice - finalPrice) / oldPrice) * 100) : null)
+                const isOutOfStock = Number(item.stock || 0) <= 0
+
                 return (
                   <div
                     key={item.id}
                     className={`product-card ${qty > 0 ? 'in-cart' : ''}`}
                   >
-                    {/* Savatdagi soni (badge) */}
-                    {qty > 0 && (
-                      <span className="cart-item-badge">Savatda: {qty}</span>
+                    {/* Chegirma foizi belgisi */}
+                    {hasDiscount && discountPercent && (
+                      <span className="product-discount-badge">
+                        -{discountPercent}%
+                      </span>
                     )}
 
-                    {/* Bosilganda mahsulot sahifasiga o'tadi */}
+                    {/* Savatdagi soni */}
+                    {qty > 0 && (
+                      <span className="cart-item-badge">
+                        <i className="fa-solid fa-cart-shopping"></i> {qty}
+                      </span>
+                    )}
+
                     <div
                       className="product-clickable-area"
                       onClick={() => navigate(`/product/${item.id}`)}
@@ -194,6 +315,7 @@ function HomePage({ cart = [], onUpdateCart }) {
                           src={displayImg}
                           alt={item.title || item.name}
                           className="product-img"
+                          loading="lazy"
                         />
                       </div>
 
@@ -201,23 +323,45 @@ function HomePage({ cart = [], onUpdateCart }) {
                         <h4 className="product-name">
                           {item.title || item.name}
                         </h4>
-                        <p className="product-price">
-                          {Number(item.price || 0).toLocaleString()} so'm
-                        </p>
+
+                        {/* Chegirma va Yakuniy Narx Bloki */}
+                        <div className="product-price-row">
+                          {hasDiscount && oldPrice > finalPrice && (
+                            <span className="product-old-price">
+                              {oldPrice.toLocaleString()} so‘m
+                            </span>
+                          )}
+                          <div className="product-price-flex">
+                            <span className="product-price">
+                              {finalPrice.toLocaleString()}{' '}
+                              <small>so‘m</small>
+                            </span>
+                            {/* Qolgan ombor soni (stock) */}
+                            {Number(item.stock) < 10 && Number(item.stock) > 0 && (
+                              <span className="stock-warning">
+                                Faqat {item.stock} ta qoldi
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Savat boshqaruvchisi: - qty + hammasi bitta qatorda */}
                     <div className="product-card-action">
-                      {qty === 0 ? (
+                      {isOutOfStock ? (
+                        <button className="add-cart-btn disabled-btn" disabled>
+                          Tugagan
+                        </button>
+                      ) : qty === 0 ? (
                         <button
                           className="add-cart-btn"
                           onClick={(e) => {
                             e.stopPropagation()
-                            onUpdateCart(item, 1)
+                            // Savatga chegirmali narx (finalPrice) bilan qo'shish
+                            onUpdateCart({ ...item, price: finalPrice }, 1)
                           }}
                         >
-                          Savatga
+                          <i className="fa-solid fa-basket-shopping"></i> Savatga
                         </button>
                       ) : (
                         <div
@@ -227,17 +371,23 @@ function HomePage({ cart = [], onUpdateCart }) {
                           <button
                             type="button"
                             className="qty-btn"
-                            onClick={() => onUpdateCart(item, -1)}
+                            onClick={() => onUpdateCart({ ...item, price: finalPrice }, -1)}
                           >
-                            −
+                            <i className="fa-solid fa-minus"></i>
                           </button>
                           <span className="qty-value">{qty}</span>
                           <button
                             type="button"
                             className="qty-btn"
-                            onClick={() => onUpdateCart(item, 1)}
+                            onClick={() => {
+                              if (qty >= (item.stock || 9999)) {
+                                alert(`Kechirasiz, omborda faqat ${item.stock} ta tovar bor!`)
+                                return
+                              }
+                              onUpdateCart({ ...item, price: finalPrice }, 1)
+                            }}
                           >
-                            +
+                            <i className="fa-solid fa-plus"></i>
                           </button>
                         </div>
                       )}

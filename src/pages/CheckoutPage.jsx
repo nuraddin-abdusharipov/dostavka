@@ -3,23 +3,24 @@ import { useNavigate } from 'react-router-dom'
 import {
   collection,
   doc,
-  setDoc,
   getDocs,
   deleteDoc,
   query,
   where,
   serverTimestamp,
+  writeBatch,
+  increment,
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import './CheckoutPage.css'
 
-// 5 ta tayyor filial
-const PICKUP_POINTS = [
-  { id: 1, name: 'Urganch Markaziy filiali', address: 'Al-Xorazmiy ko‘chasi, 24-uy', coords: [41.5565, 60.6312] },
-  { id: 2, name: 'Xiva Ichan Qal\'a filiali', address: 'Pahlavon Mahmud ko‘chasi, 10-uy', coords: [41.3783, 60.3639] },
-  { id: 3, name: 'Urganch Darital filiali', address: 'Xonqa ko‘chasi, 12-A uy', coords: [41.5421, 60.6210] },
-  { id: 4, name: 'Xonqa filiali', address: 'Mustaqillik ko‘chasi, 5-uy', coords: [41.4682, 60.7715] },
-  { id: 5, name: 'Shovot filiali', address: 'Turkiston ko‘chasi, 45-uy', coords: [41.6588, 60.3012] },
+// Firestore'da branches bo'sh bo'lsa zaxira filiallar
+const DEFAULT_BRANCHES = [
+  { id: '1', name: 'Urganch Markaziy filiali', address: 'Al-Xorazmiy ko‘chasi, 24-uy', coords: [41.5565, 60.6312] },
+  { id: '2', name: 'Xiva Ichan Qal\'a filiali', address: 'Pahlavon Mahmud ko‘chasi, 10-uy', coords: [41.3783, 60.3639] },
+  { id: '3', name: 'Urganch Darital filiali', address: 'Xonqa ko‘chasi, 12-A uy', coords: [41.5421, 60.6210] },
+  { id: '4', name: 'Xonqa filiali', address: 'Mustaqillik ko‘chasi, 5-uy', coords: [41.4682, 60.7715] },
+  { id: '5', name: 'Shovot filiali', address: 'Turkiston ko‘chasi, 45-uy', coords: [41.6588, 60.3012] },
 ]
 
 export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
@@ -28,11 +29,14 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
   const [name, setName] = useState(user?.name || '')
   const [phone, setPhone] = useState(user?.phone || user?.telegramId || '+998')
 
-  // Yetkazib berish turi: 'courier' (+30,000) yoki 'pickup' (+5,000)
+  // Filiallar (Firestore'dan olinadi)
+  const [branches, setBranches] = useState(DEFAULT_BRANCHES)
+  const [selectedPickup, setSelectedPickup] = useState(DEFAULT_BRANCHES[2]) // Standart: Urganch Darital
+
+  // Yetkazib berish turi
   const [deliveryType, setDeliveryType] = useState('courier')
-  const [selectedPickup, setSelectedPickup] = useState(PICKUP_POINTS[0])
-  const [address, setAddress] = useState('')
   const [courierCoords, setCourierCoords] = useState([41.5565, 60.6312])
+  const [address, setAddress] = useState("Xaritada belgilangan manzil (41.5565, 60.6312)")
 
   // Xarita ref'lari
   const mapContainerRef = useRef(null)
@@ -49,7 +53,38 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
   const [loading, setLoading] = useState(false)
   const [successOrder, setSuccessOrder] = useState(null)
 
-  // Hisob-kitob
+  // 1. Filiallarni Firestore'dan yuklash
+  useEffect(() => {
+    const fetchBranches = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'branches'))
+        if (!snap.empty) {
+          const list = snap.docs.map((d) => {
+            const data = d.data()
+            return {
+              id: d.id,
+              name: data.name || data.title || 'Filial',
+              address: data.address || '',
+              coords: Array.isArray(data.coords)
+                ? data.coords
+                : [data.lat || data.location?.lat, data.lng || data.location?.lng],
+            }
+          }).filter((b) => b.coords && b.coords[0] && b.coords[1])
+
+          if (list.length > 0) {
+            setBranches(list)
+            setSelectedPickup(list[0])
+          }
+        }
+      } catch (err) {
+        console.error('Filiallarni yuklashda xatolik:', err)
+      }
+    }
+
+    fetchBranches()
+  }, [])
+
+  // Hisob-kitoblar
   const itemsPrice = cart.reduce(
     (acc, item) => acc + Number(item.price || 0) * item.quantity,
     0
@@ -59,16 +94,18 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
   const discountAmount = appliedPromo ? Number(appliedPromo.discount || 0) : 0
   const finalPrice = Math.max(0, itemsPrice + deliveryFee - discountAmount)
 
-  // Xaritani boshqarish (Kuryer va Filial uchun bitta moslashuvchan logika)
+  // Leaflet xaritasini boshqarish
   useEffect(() => {
     const L = window.L
     if (!L || !mapContainerRef.current) return
 
-    // Xarita hali yaratilmagan bo'lsa uni ishga tushirish
     if (!mapInstanceRef.current) {
+      const initialCenter =
+        deliveryType === 'courier' ? courierCoords : selectedPickup?.coords || [41.5421, 60.6210]
+
       const map = L.map(mapContainerRef.current).setView(
-        deliveryType === 'courier' ? courierCoords : selectedPickup.coords,
-        deliveryType === 'courier' ? 14 : 11
+        initialCenter,
+        deliveryType === 'courier' ? 14 : 12
       )
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -77,11 +114,12 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
 
       mapInstanceRef.current = map
 
-      // Xarita bosilganda faqat kuryer rejimida marker ko'chadi
       map.on('click', (e) => {
         if (deliveryType === 'courier') {
-          const { lat, lng } = e.latlng
+          const lat = Number(e.latlng.lat.toFixed(5))
+          const lng = Number(e.latlng.lng.toFixed(5))
           setCourierCoords([lat, lng])
+          setAddress(`Xaritada belgilangan manzil (${lat}, ${lng})`)
           if (courierMarkerRef.current) {
             courierMarkerRef.current.setLatLng([lat, lng])
           }
@@ -100,18 +138,18 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
     pickupMarkersRef.current = []
 
     if (deliveryType === 'courier') {
-      // Kuryer rejimi: bitta harakatlanuvchi marker
       map.setView(courierCoords, 14)
       const marker = L.marker(courierCoords).addTo(map)
       courierMarkerRef.current = marker
     } else {
-      // Filial rejimi: barcha 5 ta filialga marker qo'yish
-      map.setView(selectedPickup.coords, 12)
+      if (selectedPickup?.coords) {
+        map.setView(selectedPickup.coords, 12)
+      }
 
-      PICKUP_POINTS.forEach((point) => {
-        const isSelected = point.id === selectedPickup.id
-
-        // Filial markeri
+      // Xaritada barcha filiallarni joylashtirish
+      branches.forEach((point) => {
+        if (!point.coords) return
+        const isSelected = selectedPickup?.id === point.id
         const marker = L.marker(point.coords).addTo(map)
         marker.bindPopup(`<b>${point.name}</b><br/>${point.address}`)
 
@@ -119,7 +157,7 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
           marker.openPopup()
         }
 
-        // Marker bosilganda ushbu filialni tanlash
+        // Faqat xaritadan tanlanadi
         marker.on('click', () => {
           setSelectedPickup(point)
           map.panTo(point.coords)
@@ -133,40 +171,29 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
     setTimeout(() => {
       map.invalidateSize()
     }, 200)
-  }, [deliveryType])
+  }, [deliveryType, branches])
 
-  // Ro'yxatdan filial tanlanganda xaritani unga qaratish
-  const handleSelectPickup = (point) => {
-    setSelectedPickup(point)
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView(point.coords, 14, { animate: true })
-      // Popuplarni yangilash
-      pickupMarkersRef.current.forEach((m, idx) => {
-        if (PICKUP_POINTS[idx].id === point.id) {
-          m.openPopup()
-        }
-      })
-    }
-  }
-
-  // GPS joylashuv (kuryer uchun)
+  // GPS Mening joyim
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const newCoords = [pos.coords.latitude, pos.coords.longitude]
+          const lat = Number(pos.coords.latitude.toFixed(5))
+          const lng = Number(pos.coords.longitude.toFixed(5))
+          const newCoords = [lat, lng]
           setCourierCoords(newCoords)
+          setAddress(`Mening geolokatsiyam (${lat}, ${lng})`)
           if (mapInstanceRef.current && courierMarkerRef.current) {
             mapInstanceRef.current.setView(newCoords, 15)
             courierMarkerRef.current.setLatLng(newCoords)
           }
         },
-        () => alert('Joylashuvingizni aniqlab bo‘lmadi. Xaritadan qo‘lda tanlang.')
+        () => alert('Joylashuvingizni aniqlab bo‘lmadi. Xaritadan nuqtani bosing.')
       )
     }
   }
 
-  // Promokod tekshiruvi
+  // Promokodni tekshirish
   const handleCheckPromo = async () => {
     const cleanCode = promoInput.trim().toUpperCase()
     if (!cleanCode) return
@@ -211,7 +238,7 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
     }
   }
 
-  // Buyurtma yuborish
+  // Buyurtmani jo'natish va STOKNI KAMAYTIRISH
   const handleOrderSubmit = async (e) => {
     e.preventDefault()
 
@@ -226,21 +253,28 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
       return
     }
 
-    if (deliveryType === 'courier' && !address.trim()) {
-      alert('Kuryer yetkazishi uchun manzilni kiriting!')
+    if (deliveryType === 'pickup' && !selectedPickup) {
+      alert('Iltimos, xaritadagi markerlardan birini bosib filialni tanlang!')
       return
     }
+
+    const finalCourierAddress =
+      address.trim() || `Xaritadagi manzil (${courierCoords[0]}, ${courierCoords[1]})`
 
     setLoading(true)
 
     try {
-      const tgId = String(user?.telegramId || user?.id || '21323832')
+      const batch = writeBatch(db)
+      const tgId = String(user?.telegramId || user?.id || '8919800652')
 
+      // Buyurtma raqamini generatsiya qilish (telegramId-000X)
       const ordersQ = query(collection(db, 'orders'), where('telegramId', '==', tgId))
       const userOrdersSnap = await getDocs(ordersQ)
       const nextIndex = userOrdersSnap.size + 1
       const formattedIndex = String(nextIndex).padStart(4, '0')
       const customOrderId = `${tgId}-${formattedIndex}`
+
+      const orderRef = doc(db, 'orders', customOrderId)
 
       const orderData = {
         orderId: customOrderId,
@@ -250,7 +284,7 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
           name: name.trim(),
           phone: phone.trim(),
           deliveryType,
-          address: deliveryType === 'courier' ? address.trim() : selectedPickup.address,
+          address: deliveryType === 'courier' ? finalCourierAddress : selectedPickup.address,
           pickupPoint: deliveryType === 'pickup' ? selectedPickup.name : null,
           location:
             deliveryType === 'courier'
@@ -271,20 +305,31 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
         totalPrice: finalPrice,
         totalCount,
         paymentMethod: 'cash_on_delivery',
-        status: 'pending',
+        status: 'kutilmoqda',
         createdAt: serverTimestamp(),
       }
 
-      await setDoc(doc(db, 'orders', customOrderId), orderData)
+      // 1. Buyurtmani yozish
+      batch.set(orderRef, orderData)
 
-      // Promokod bazadan o'chiriladi
-      if (appliedPromo?.id) {
-        try {
-          await deleteDoc(doc(db, 'promocodes', appliedPromo.id))
-        } catch (delErr) {
-          console.error("Promokodni o'chirishda xatolik:", delErr)
+      // 2. Har bir sotib olingan tovarning STOCK miqdoridan ayirib tashlash
+      cart.forEach((item) => {
+        if (item.id) {
+          const productRef = doc(db, 'products', item.id)
+          batch.update(productRef, {
+            stock: increment(-Number(item.quantity || 1)),
+          })
         }
+      })
+
+      // 3. Promokod ishlatilgan bo'lsa uni o'chirish
+      if (appliedPromo?.id) {
+        const promoRef = doc(db, 'promocodes', appliedPromo.id)
+        batch.delete(promoRef)
       }
+
+      // Atomik saqlash (buyurtma va ombor bir vaqtda yangilanadi)
+      await batch.commit()
 
       if (onClearCart) onClearCart()
       setSuccessOrder({ id: customOrderId, total: finalPrice })
@@ -300,7 +345,9 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
     return (
       <div className="checkout-page center-box">
         <div className="success-card">
-          <div className="success-icon">🎉</div>
+          <div className="success-icon">
+            <i className="fa-solid fa-circle-check"></i>
+          </div>
           <h2>Buyurtmangiz qabul qilindi!</h2>
           <div className="order-id-badge">ID: {successOrder.id}</div>
           <p>Tez orada operatorimiz siz bilan bog'lanadi.</p>
@@ -308,8 +355,8 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
             <span>To‘lov summasi:</span>
             <strong>{successOrder.total.toLocaleString()} so'm</strong>
           </div>
-          <button className="done-btn" onClick={() => navigate('/')}>
-            Bosh sahifaga qaytish
+          <button className="done-btn" onClick={() => navigate('/orders')}>
+            Buyurtmalarimni ko‘rish
           </button>
         </div>
       </div>
@@ -320,7 +367,7 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
     <div className="checkout-page">
       <div className="detail-header">
         <button type="button" className="icon-btn" onClick={() => navigate(-1)}>
-          &larr;
+          <i className="fa-solid fa-arrow-left"></i>
         </button>
         <h3 className="header-title">Rasmiylashtirish</h3>
         <div style={{ width: 32 }}></div>
@@ -360,34 +407,38 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
               className={`delivery-type-card ${deliveryType === 'courier' ? 'active' : ''}`}
               onClick={() => setDeliveryType('courier')}
             >
-              <div className="type-icon">🛵</div>
+              <div className="type-icon">
+                <i className="fa-solid fa-truck-fast"></i>
+              </div>
               <div className="type-title">Kuryer orqali</div>
               <div className="type-price">+30,000 so'm</div>
-              <span className="type-desc">Eshigingizgacha yetkazib beriladi</span>
+              <span className="type-desc">Eshigingizgacha yetkaziladi</span>
             </div>
 
             <div
               className={`delivery-type-card ${deliveryType === 'pickup' ? 'active' : ''}`}
               onClick={() => setDeliveryType('pickup')}
             >
-              <div className="type-icon">🏬</div>
+              <div className="type-icon">
+                <i className="fa-solid fa-shop"></i>
+              </div>
               <div className="type-title">Olib ketish punkti</div>
               <div className="type-price">+5,000 so'm</div>
               <span className="type-desc">Filialdan o‘zingiz olasiz</span>
             </div>
           </div>
 
-          {/* Umumiy Xarita Bloki */}
+          {/* Xarita qismi */}
           <div className="form-group">
             <div className="map-header-row">
               <label>
                 {deliveryType === 'courier'
                   ? 'Yetkazish manzilini xaritada belgilang *'
-                  : 'Xaritadagi filiallar (markerni bosib tanlang) *'}
+                  : 'Xaritadan kerakli filial ustiga bosing *'}
               </label>
               {deliveryType === 'courier' && (
                 <button type="button" className="geo-locate-btn" onClick={handleGetLocation}>
-                  📍 Mening joyim
+                  <i className="fa-solid fa-location-crosshairs"></i> Mening joyim
                 </button>
               )}
             </div>
@@ -396,47 +447,34 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
             </div>
           </div>
 
-          {deliveryType === 'courier' ? (
-            /* Kuryer uchun qo'shimcha aniq manzil yozish */
+          {/* Faqat xaritadan tanlangan filial ko'rinishi */}
+          {deliveryType === 'pickup' && selectedPickup && (
+            <div className="selected-branch-card">
+              <div className="selected-branch-icon">
+                <i className="fa-solid fa-store"></i>
+              </div>
+              <div className="selected-branch-details">
+                <span className="selected-branch-label">Tanlangan filial:</span>
+                <strong className="selected-branch-name">{selectedPickup.name}</strong>
+                <p className="selected-branch-address">{selectedPickup.address}</p>
+              </div>
+            </div>
+          )}
+
+          {deliveryType === 'courier' && (
             <div className="form-group" style={{ marginTop: '10px' }}>
-              <label>Aniq manzil (mo‘ljal, ko‘cha, uy raqami) *</label>
+              <label>Aniq manzil (mo‘ljal, ko‘cha, xonadon)</label>
               <textarea
                 rows="2"
                 placeholder="Masalan: Al-Xorazmiy ko'chasi 15-uy"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                required
               />
-            </div>
-          ) : (
-            /* Filial uchun 5 ta filial ro'yxati */
-            <div className="pickup-fields">
-              <label className="field-subtitle">Mavjud filiallar ro‘yxati:</label>
-              <div className="pickup-list">
-                {PICKUP_POINTS.map((point) => (
-                  <div
-                    key={point.id}
-                    className={`pickup-item ${selectedPickup.id === point.id ? 'selected' : ''}`}
-                    onClick={() => handleSelectPickup(point)}
-                  >
-                    <input
-                      type="radio"
-                      name="pickup_point"
-                      checked={selectedPickup.id === point.id}
-                      onChange={() => handleSelectPickup(point)}
-                    />
-                    <div className="pickup-info">
-                      <strong>{point.name}</strong>
-                      <span>{point.address}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
         </div>
 
-        {/* Promokod bo'limi */}
+        {/* Promokod */}
         <div className="checkout-card">
           <h4 className="card-title">Promokod</h4>
           <div className="promo-input-wrapper">
@@ -477,7 +515,7 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
           {promoError && <p className="promo-msg error">{promoError}</p>}
           {appliedPromo && (
             <p className="promo-msg success">
-              ✅ Promokod faollashdi: -{appliedPromo.discount.toLocaleString()} so'm chegirma!
+              <i className="fa-solid fa-check"></i> Promokod qo‘llandi: -{appliedPromo.discount.toLocaleString()} so'm!
             </p>
           )}
         </div>
@@ -486,10 +524,12 @@ export default function CheckoutPage({ cart = [], onClearCart, user = null }) {
         <div className="checkout-card">
           <h4 className="card-title">To'lov usuli</h4>
           <div className="single-payment-box">
-            <span className="pay-badge">💵</span>
+            <span className="pay-badge">
+              <i className="fa-solid fa-money-bill-wave"></i>
+            </span>
             <div className="pay-text">
               <strong>Qabul qilganda to'lash</strong>
-              <span>Buyurtmani qabul qilib olganingizdan keyin naqd yoki karta orqali to'laysiz.</span>
+              <span>Buyurtmani topshirib olganingizdan keyin naqd yoki karta orqali to'laysiz.</span>
             </div>
           </div>
         </div>

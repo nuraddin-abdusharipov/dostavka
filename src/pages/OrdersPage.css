@@ -3,34 +3,47 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: #FAF5FF;
+  background: linear-gradient(180deg, #FAF5FF 0%, #F8FAFC 240px);
   padding: 16px;
   box-sizing: border-box;
   overflow-y: auto;
-  padding-bottom: 90px;
+  padding-bottom: 95px;
 }
 
+.orders-page::-webkit-scrollbar {
+  display: none;
+}
+
+/* Header */
 .orders-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  margin-bottom: 18px;
 }
 
 .orders-header h2 {
   font-size: 20px;
   font-weight: 800;
-  color: #1F2937;
+  color: #0F172A;
   margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.orders-subtitle {
+  font-size: 12px;
+  color: #64748B;
+  margin: 2px 0 0 0;
 }
 
 .orders-count {
-  font-size: 11px;
+  font-size: 11.5px;
   background-color: #EDE9FE;
   color: #7C3AED;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 5px 10px;
+  border-radius: 14px;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* Buyurtmalar ro'yxati */
@@ -42,85 +55,134 @@
 
 .order-card {
   background: #FFFFFF;
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 20px;
+  padding: 16px;
   border: 1px solid #EDE9FE;
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.04);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.05);
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* Header qatori */
 .order-card-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  border-bottom: 1px dashed #EDE9FE;
-  padding-bottom: 10px;
+  align-items: center;
+  border-bottom: 1px solid #F1F5F9;
+  padding-bottom: 12px;
 }
 
 .order-id {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 800;
-  color: #1F2937;
+  color: #1E293B;
   display: block;
 }
 
 .order-date {
-  font-size: 11px;
-  color: #9CA3AF;
-  display: block;
-  margin-top: 2px;
+  font-size: 11.5px;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
 }
 
-/* Holat nishonlari */
+.order-date i {
+  font-size: 10px;
+}
+
+/* Status Badge'lar */
 .status-badge {
   font-size: 11px;
   font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
-
-.status-badge.pending {
-  background: #FEF3C7;
-  color: #D97706;
-}
-
-.status-badge.delivering {
-  background: #E0E7FF;
-  color: #4F46E5;
-}
-
-.status-badge.completed {
-  background: #ECFDF5;
-  color: #059669;
-}
-
-.status-badge.cancelled {
-  background: #FEE2E2;
-  color: #DC2626;
-}
-
-/* Yetkazish usuli */
-.order-delivery-type {
-  font-size: 12px;
-  color: #6B7280;
+  padding: 5px 9px;
+  border-radius: 10px;
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 5px;
 }
 
-.order-delivery-type strong {
-  color: #1F2937;
+.status-badge i {
+  font-size: 10.5px;
 }
 
-/* Tovarlar gorizontal ro'yxati */
+.status-badge.status-completed {
+  background-color: #DCFCE7;
+  color: #15803D;
+}
+
+.status-badge.status-delivering {
+  background-color: #EDE9FE;
+  color: #6D28D9;
+}
+
+.status-badge.status-pickup {
+  background-color: #E0E7FF;
+  color: #4338CA;
+}
+
+.status-badge.status-preparing {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.status-badge.status-cancelled {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* Manzil va yetkazish ma'lumoti */
+.order-delivery-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #F8FAFC;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid #F1F5F9;
+}
+
+.delivery-icon-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background-color: #EDE9FE;
+  color: #7C3AED;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.delivery-text-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.delivery-method-name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.delivery-address-text {
+  font-size: 12px;
+  color: #64748B;
+  margin: 2px 0 0 0;
+  line-height: 1.35;
+}
+
+/* Tovarlar ro'yxati */
 .order-items-scroll {
   display: flex;
   flex-direction: column;
   gap: 8px;
   background: #FAF5FF;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 14px;
 }
 
 .order-item-chip {
@@ -130,114 +192,173 @@
 }
 
 .order-item-img {
-  width: 44px;
-  height: 44px;
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
   object-fit: cover;
-  background-color: #EDE9FE;
+  background-color: #FFFFFF;
+  border: 1px solid #E9D5FF;
   flex-shrink: 0;
 }
 
 .order-item-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
   overflow: hidden;
 }
 
 .order-item-title {
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #1F2937;
+  color: #1E293B;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.order-item-sub {
+.order-item-calc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 3px;
   font-size: 11px;
-  color: #6B7280;
-  margin-top: 2px;
 }
 
-/* Pastki xulosa */
+.order-item-qty {
+  font-weight: 700;
+  color: #7C3AED;
+}
+
+.order-item-x {
+  color: #94A3B8;
+}
+
+.order-item-unit-price {
+  color: #64748B;
+}
+
+.order-item-row-total {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+
+/* Footer qismi */
 .order-card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 6px;
+  border-top: 1px dashed #EDE9FE;
+  padding-top: 10px;
 }
 
 .order-pay-method {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: #6B7280;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-pay-method i {
+  color: #7C3AED;
 }
 
 .order-total-price {
-  font-size: 13px;
-  color: #1F2937;
+  font-size: 12.5px;
+  color: #475569;
   display: flex;
   align-items: baseline;
   gap: 6px;
 }
 
 .order-total-price strong {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 800;
-  color: #F97316;
+  color: #EA580C;
 }
 
-/* Bo'sh xaridlar holati */
+/* Bo'sh xaridlar ekrani */
 .empty-orders-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: #FFFFFF;
-  border-radius: 20px;
-  padding: 40px 20px;
+  border-radius: 24px;
+  padding: 50px 20px;
   border: 1px solid #EDE9FE;
   margin-top: 20px;
   text-align: center;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.04);
 }
 
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+.empty-icon-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #FAF5FF;
+  border: 2px dashed #DDD6FE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #7C3AED;
+  margin-bottom: 16px;
 }
 
 .empty-orders-card h3 {
   font-size: 17px;
-  font-weight: 700;
-  color: #1F2937;
+  font-weight: 800;
+  color: #1E293B;
   margin: 0 0 6px 0;
 }
 
 .empty-orders-card p {
   font-size: 13px;
-  color: #6B7280;
-  margin: 0 0 20px 0;
+  color: #64748B;
+  margin: 0 0 24px 0;
+  max-width: 250px;
+  line-height: 1.4;
 }
 
 .start-shopping-btn {
-  background-color: #7C3AED;
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
   color: #FFFFFF;
   border: none;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
-  padding: 12px 24px;
-  border-radius: 12px;
+  padding: 12px 28px;
+  border-radius: 14px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
+  transition: transform 0.15s ease, opacity 0.2s;
 }
 
+.start-shopping-btn:active {
+  transform: scale(0.96);
+  opacity: 0.9;
+}
+
+/* Loading holati */
 .orders-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 0;
-  color: #6B7280;
-  font-size: 13px;
-  gap: 10px;
+  padding: 70px 0;
+  color: #64748B;
+  font-size: 13.5px;
+  gap: 12px;
+}
+
+.loading-spinner-icon {
+  font-size: 28px;
+  color: #7C3AED;
 }
